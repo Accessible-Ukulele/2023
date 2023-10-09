@@ -1,7 +1,7 @@
 //global variables
-const int stringArrayLength = 16; 
-const char* string_frets[stringArrayLength];
-const char* solenoid_pins[stringArrayLength];
+const int stringArrayLength = 16;
+char* string_frets[stringArrayLength];
+char* solenoid_pins[stringArrayLength];
 
 void setup()
 {
@@ -13,9 +13,18 @@ void loop()
 
 }
 
+//track down which index is attached to the solenoid that we want
+//returns an index when given a string_fret combination to find
+void findSolenoidIndex(char string_fret[])
+{
+    //if we use char* we will have to manually write .find
+    int desired_index = string_frets.find(string_fret);
+}
+
 //option 1
 //ex function yet to be implemented
-void playNote(int solenoid_indicies[])
+//solenoid indicies size, for loop following, that calls to find each string and activated respective solenoids
+void playNote(int solenoid_indicies[], int solenoid_indicies_size)
 {
 
 }
@@ -35,7 +44,7 @@ void playSpecificNote()
 //solenoid format is letter, number, number
 void setupStringArrays()
 {
-    for(int i = 20, int j = 0; i < 52; i += 2, j++)
+    for(int i = 20, j = 0; i < 52; i += 2, j++)
     {
         char solenoid_pin[3] = {'D', (i / 10), (i % 10)};
         solenoid_pins[j] = solenoid_pin;
