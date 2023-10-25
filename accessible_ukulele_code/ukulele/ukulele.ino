@@ -1,7 +1,7 @@
 //global variables
-const int stringArrayLength = 16;
+const int stringArrayLength = 12;
 char* string_frets[stringArrayLength];
-int* solenoid_pins[stringArrayLength];
+int solenoid_pins[stringArrayLength];
 char active_note = '!';
 
 void setup()
@@ -302,8 +302,7 @@ void setupStringArrays()
 {
     for(int i = 20, j = 0; i <= 42; i += 2, j++)
     {
-        int solenoid_pin[2] = {(i / 10), (i % 10)};
-        solenoid_pins[j] = solenoid_pin;
+        solenoid_pins[j] = i;
     }
 
     for(int i = 1; i < 5; i++)
@@ -321,7 +320,7 @@ void setupStringArrays()
                 string = 'A';
         }
 
-        for(int j = 1; j < 5; j++)
+        for(int j = 0; j < 3; j++)
         {
             char string_fret[2] = {string, j + 1};
             string_frets[i * j] = string_fret;
