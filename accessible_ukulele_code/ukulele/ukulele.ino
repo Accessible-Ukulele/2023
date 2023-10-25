@@ -300,7 +300,7 @@ void clearActiveNote()
 //solenoid format is letter, number, number
 void setupStringArrays()
 {
-    for(int i = 20, j = 0; i < 52; i += 2, j++)
+    for(int i = 20, j = 0; i <= 42; i += 2, j++)
     {
         int solenoid_pin[2] = {(i / 10), (i % 10)};
         solenoid_pins[j] = solenoid_pin;
