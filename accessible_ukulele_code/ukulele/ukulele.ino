@@ -2,12 +2,20 @@
 const int stringArrayLength = 12;
 char* string_frets[stringArrayLength];
 int solenoid_pins[stringArrayLength];
+int button[4] = {29, 23, 25, 27};
+char string_fret[2] = {'z', 'z'};
 char active_note = '!';
+int solenoid_index;
+int button_hold_start;
+int time_button_held;
+int pressed_button = 4;
 
 void setup()
 {
+    //setup serial console
+    Serial.begin(9600);
+
     //red green blue yellow
-    int button[4] = {21, 23, 25, 27};
     setupStringArrays();
 
     pinMode(button[0], INPUT_PULLUP);
@@ -17,70 +25,96 @@ void setup()
 
     for(int i = 0; i < sizeof(solenoid_pins); i++)
     {
-        pinmode(solenoid_pins[i], OUTPUT);
+        pinMode(solenoid_pins[i], OUTPUT);
     }
 }
 
 void loop()
 {
-    int pressed_button = buttonCheck();
-    if(pressed_button < 4)
+    switch(pressed_button)
     {
-        clearActiveNote();
-        switch(pressed_button)
-        {
-            //c
-            case 0:
-                playC();
-                break;
-            //a
-            case 1:
-                playA();
-                break;
-            //f
-            case 2:
-                playF();
-                break;
-            //g
-            case 3:
-                playG();
-                break;
-        }
-        delay(15000);
-        clearActiveNote();
+        //held for too long
+        case -1:
+            clearActiveNote();
+            analogWrite(36, 0);
+            delay(1000);
+        //c
+        case 0:
+            // playC();
+            break;
+        //a
+        case 1:
+            // playA();
+            break;
+        //f
+        case 2:
+            // playF()
+            analogWrite(36, 255);
+            break;
+        //g
+        case 3:
+            // playG();
+            break;
+        case 4:
+            analogWrite(36, 0);
+            break;
+
     }
+    pressed_button = buttonCheck();
+
+    if(time_button_held >= 1500)
+    {
+        pressed_button = -1; 
+        continue;
+    }
+        // delay(15000);
+    
+
+    // analogWrite(36, 0);
+    pressed_button = 4;
+    clearActiveNote();
 }
 
 //check on if any buttons are being pressed
 int buttonCheck() 
 {
     //red - c
-    if (digitalRead(button[0]) == LOW) 
+    if (digitalRead(button[0]) == HIGH) 
     {
+        time_button_held = millis() - button_hold_start;
+        Serial.println("Hello, red");
         return 0;
     } 
 
     //green - a
-    else if (digitalRead(button[1]) == LOW) 
+    else if (digitalRead(button[1]) == HIGH) 
     {
+        time_button_held = millis() - button_hold_start;
+        Serial.println("Hello, green");
         return 1;
     } 
 
     //blue - f
-    else if (digitalRead(button[2]) == LOW) 
+    else if (digitalRead(button[2]) == HIGH) 
     {
+        time_button_held = millis() - button_hold_start;
+        Serial.println("Hello, blue");
         return 2;
     } 
 
     //yellow - g
-    else if (digitalRead(button[3]) == LOW) 
+    else if (digitalRead(button[3]) == HIGH) 
     {
+        time_button_held = millis() - button_hold_start;
+        Serial.println("Hello, yellow");
         return 3;
     } 
 
     //none
     else 
     {
+        Serial.println("Hello, none");
+        button_hold_start = millis();
         return 4;
     }
 }
@@ -103,7 +137,7 @@ int findSolenoidIndex(char string_fret[2])
 
 //option 1
 //ex function yet to be implemented
-//solenoid indicies size, for loop following, that calls to find each string and activated respective solenoids
+//solenoid indicies size, for loop fol0ing, that calls to find each string and activated respective solenoids
 void playNote(int solenoid_indicies[], int solenoid_indicies_size)
 {
 
@@ -116,19 +150,21 @@ void playNote(int solenoid_indicies[], int solenoid_indicies_size)
 
 void playC()
 {
-    char string_fret[2] = {'A', 3};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    string_fret[0] = 'A';
+    string_fret[1] = 3;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 255);
 
     active_note = 'C';
 }
 void releaseC()
 {
-    char string_fret[2] = {'A', 3};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], LOW);
+    string_fret[0] = 'A';
+    string_fret[1] = 3;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 0);
 
     active_note = '!';
 }
@@ -136,136 +172,154 @@ void releaseC()
 //a minor
 void playA()
 {
-    char string_fret[2] = {'G', 2};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    string_fret[0] = 'G';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 255);
 
-    // char string_fret[2] = {'C', 1};
-    // int solendoid_index = findSolenoidIndex(string_fret);
-    // if (solendoid_index == -1) {}//error
-    // digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    // string_fret = {'C', 1};
+    // solenoid_index = findSolenoidIndex(string_fret);
+    // if (solenoid_index == -1) {}//error
+    // analogWrite(solenoid_pins[solenoid_index], 255);
 
     active_note = 'A';
 }
 void releaseA()
 {
-    char string_fret[2] = {'G', 2};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], LOW);
+    string_fret[0] = 'G';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 0);
 
-    // char string_fret[2] = {'C', 1};
-    // int solendoid_index = findSolenoidIndex(string_fret);
-    // if (solendoid_index == -1) {}//error
-    // digitalWrite(solenoid_pins[solendoid_index], LOW);
+    // string_fret = {'C', 1};
+    // solenoid_index = findSolenoidIndex(string_fret);
+    // if (solenoid_index == -1) {}//error
+    // analogWrite(solenoid_pins[solenoid_index], 0);
 
     active_note = '!';
 }
 
 void playF()
 {
-    char string_fret[2] = {'E', 1};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    string_fret[0] = 'E';
+    string_fret[1] = 1;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 255);
 
-    char string_fret[2] = {'G', 2};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    string_fret[0] = 'G';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 255);
 
     active_note = 'F';
 }
 void releaseF()
 {
-    char string_fret[2] = {'E', 1};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], LOW);
+    string_fret[0] = 'E';
+    string_fret[1] = 1;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 0);
 
-    char string_fret[2] = {'G', 2};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], LOW);
+    string_fret[0] = 'G';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 0);
 
     active_note = '!';
 }
 
 void playG()
 {
-    char string_fret[2] = {'C', 2};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    string_fret[0] = 'C';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 255);
 
-    char string_fret[2] = {'E', 3};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    string_fret[0] = 'E';
+    string_fret[1] = 3;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 255);
 
-    char string_fret[2] = {'A', 2};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    string_fret[0] = 'A';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 255);
 
     active_note = 'G';
 }
 void releaseG()
 {
-    char string_fret[2] = {'C', 2};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], LOW);
+    string_fret[0] = 'C';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 0);
 
-    char string_fret[2] = {'E', 3};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], LOW);
+    string_fret[0] = 'E';
+    string_fret[1] = 3;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 0);
 
-    char string_fret[2] = {'A', 2};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], LOW);
+    string_fret[0] = 'A';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 0);
 
     active_note = '!';
 }
 
 void playE()
 {
-    char string_fret[2] = {'C', 4};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    string_fret[0] = 'C';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 255);
 
-    char string_fret[2] = {'E', 3};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    string_fret[0] = 'E';
+    string_fret[1] = 3;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 255);
 
-    char string_fret[2] = {'A', 2};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], HIGH);
+    string_fret[0] = 'A';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 255);
 
     active_note = 'G';
 }
 void releaseE()
 {
-    char string_fret[2] = {'C', 4};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], LOW);
+    string_fret[0] = 'C';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 0);
 
-    char string_fret[2] = {'E', 3};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], LOW);
+    string_fret[0] = 'E';
+    string_fret[1] = 3;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 0);
 
-    char string_fret[2] = {'A', 2};
-    int solendoid_index = findSolenoidIndex(string_fret);
-    if (solendoid_index == -1) {}//error
-    digitalWrite(solenoid_pins[solendoid_index], LOW);
+    string_fret[0] = 'A';
+    string_fret[1] = 2;
+    solenoid_index = findSolenoidIndex(string_fret);
+    if (solenoid_index == -1) {}//error
+    analogWrite(solenoid_pins[solenoid_index], 0);
 
     active_note = '!';
 }
@@ -322,7 +376,8 @@ void setupStringArrays()
 
         for(int j = 0; j < 3; j++)
         {
-            char string_fret[2] = {string, j + 1};
+            string_fret[0] = string, 
+            string_fret[1] = j + 1;
             string_frets[i * j] = string_fret;
         }
     }
