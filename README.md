@@ -1,5 +1,5 @@
 # Accessible Ukulele
-A repository for project code, reports, and more. NOT-FINAL   
+A repository for project code, reports, and more. NOT FINAL   
 Created by:  
 Kaleb Keller,   
 Ryan Loar,  
